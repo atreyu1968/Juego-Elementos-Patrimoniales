@@ -1,1 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego: Elementos Patrimoniales</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+        }
 
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .game-container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .instructions {
+            font-size: 1.2em;
+            color: #34495e;
+            margin-bottom: 20px;
+        }
+
+        .balance-grid {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .balance-column {
+            width: 30%;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .balance-column h2 {
+            font-size: 1.5em;
+            color: #2980b9;
+            margin-bottom: 10px;
+        }
+
+        .drop-zone {
+            height: 150px;
+            background-color: #bdc3c7;
+            border-radius: 5px;
+            border: 2px dashed #7f8c8d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .elements-container {
+            margin-top: 20px;
+        }
+
+        .elements-container h2 {
+            color: #8e44ad;
+            margin-bottom: 10px;
+        }
+
+        .element {
+            background-color: #3498db;
+            color: #fff;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: grab;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .element:active {
+            cursor: grabbing;
+            background-color: #2980b9;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.2em;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            background-color: #27ae60;
+        }
+
+        #result-message {
+            margin-top: 20px;
+            font-size: 1.3em;
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Ubica los Elementos Patrimoniales en el Balance</h1>
+        <div class="instructions">
+            <p>Arrastra cada elemento patrimonial al lugar correspondiente en el balance: Activo, Pasivo o Patrimonio Neto.</p>
+        </div>
+
+        <div class="balance-grid">
+            <div class="balance-column" id="activo">
+                <h2>Activo</h2>
+                <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            </div>
+            <div class="balance-column" id="pasivo">
+                <h2>Pasivo</h2>
+                <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            </div>
+            <div class="balance-column" id="patrimonio">
+                <h2>Patrimonio Neto</h2>
+                <div class="drop-zone" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+            </div>
+        </div>
+
+        <div class="elements-container">
+            <h2>Elementos Patrimoniales</h2>
+            <div class="element" draggable="true" ondragstart="drag(event)" id="element1" data-category="activo">Caja</div>
+            <div class="element" draggable="true" ondragstart="drag(event)" id="element2" data-category="pasivo">Préstamos</div>
+            <div class="element" draggable="true" ondragstart="drag(event)" id="element3" data-category="patrimonio">Capital Social</div>
+            <div class="element" draggable="true" ondragstart="drag(event)" id="element4" data-category="activo">Edificio</div>
+            <div class="element" draggable="true" ondragstart="drag(event)" id="element5" data-category="pasivo">Deudas a largo plazo</div>
+        </div>
+
+        <button onclick="checkAnswers()">Comprobar Respuestas</button>
+        <p id="result-message"></p>
+    </div>
+
+    <script>
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        function drag(event) {
+            event.dataTransfer.setData("text", event.target.id);
+        }
+
+        function drop(event) {
+            event.preventDefault();
+            const data = event.dataTransfer.getData("text");
+            const draggedElement = document.getElementById(data);
+            const dropZone = event.target;
+            if (dropZone.classList.contains('drop-zone')) {
+                dropZone.appendChild(draggedElement);
+            }
+        }
+
+        function checkAnswers() {
+            let correct = 0;
+
+            const activoZone = document.querySelector("#activo .drop-zone");
+            const pasivoZone = document.querySelector("#pasivo .drop-zone");
+            const patrimonioZone = document.querySelector("#patrimonio .drop-zone");
+
+            const elementsInActivo = activoZone.querySelectorAll('.element');
+            const elementsInPasivo = pasivoZone.querySelectorAll('.element');
+            const elementsInPatrimonio = patrimonioZone.querySelectorAll('.element');
+
+            elementsInActivo.forEach(element => {
+                if (element.dataset.category === "activo") correct++;
+            });
+
+            elementsInPasivo.forEach(element => {
+                if (element.dataset.category === "pasivo") correct++;
+            });
+
+            elementsInPatrimonio.forEach(element => {
+                if (element.dataset.category === "patrimonio") correct++;
+            });
+
+            const totalElements = document.querySelectorAll('.element').length;
+
+            const resultMessage = document.getElementById("result-message");
+            if (correct === totalElements) {
+                resultMessage.textContent = "¡Correcto! Todos los elementos están en su lugar.";
+                resultMessage.style.color = "#2ecc71";
+            } else {
+                resultMessage.textContent = Has colocado ${correct} elementos correctamente. Intenta nuevamente.;
+                resultMessage.style.color = "#e74c3c";
+            }
+        }
+    </script>
+</body>
+</html>
